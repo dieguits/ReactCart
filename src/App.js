@@ -38,7 +38,7 @@ function App() {
 
 	return (
 		<div className="App">
-			<TopMenu productCart={productCart} />
+			<TopMenu productCart={productCart} products={products} getProductsCart={getProductsCart} addProductCart={addProductCart} />
 			<Products products={products} addProductCart={addProductCart} />
 			<ToastContainer position="top-right" autoClose={5000} hideProgressBar newestOnTop
 				closeOnClick={false}
