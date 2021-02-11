@@ -5,7 +5,7 @@ import { ReactComponent as CartFull } from '../../assets/img/cart-full.svg';
 import { ReactComponent as Close } from '../../assets/img/close.svg';
 import { ReactComponent as Garbage } from '../../assets/img/garbage.svg';
 import { STORAGE_PRODUCTS_CART, BASE_PATH } from '../../utils/constants';
-import { countDuplicateItemArray, removeArrayDuplications } from '../../utils/arrayFunctions';
+import { countDuplicateItemArray, removeArrayDuplications, removeItemArray } from '../../utils/arrayFunctions';
 
 import './Cart.scss';
 
@@ -39,22 +39,38 @@ export default function Cart(props) {
         getProductsCart();
     }
 
+    const decreaseProductCart = id => {
+
+        const idProducts = removeItemArray(productCart, id.toString());
+        //setProductCart(idProducts);
+        localStorage.setItem(STORAGE_PRODUCTS_CART, idProducts);
+        getProductsCart();
+        //toast.success(`${name} added to the cart correct.`)
+    }
+
     return (
         <>
             <Button variant="link" className="cart">
-                {productCart.length > 0 ? (
-                    <CartFull onClick={cartOpen && productCart.length > 0 ? closeCart : openCart} />
-                ) : (
-                        <CartEmpty onClick={cartOpen && productCart.length > 0 ? closeCart : openCart} />
-                    )}
+                {productCart.length > 0 ?
+                    (
+                        <CartFull onClick={openCart} />
+                    ) : (
+                        <CartEmpty onClick={openCart} />
+                    )
+                }
             </Button>
             <div className="cart-content" style={{ width: widthCartContent }} >
                 <CartContentHeader closeCart={closeCart} emptyCart={emptyCart} />
-                {singleProductsCart.map((idProduct, index) => (
-                    <CartContentProducts key={index} products={products} productCart={productCart} idProduct={idProduct} addProductCart={addProductCart} />
-                ))}
-
-            </div>
+                <div className="cart-content__products">
+                    {singleProductsCart.map((idProduct, index) => (
+                        <CartContentProducts key={index} products={products} productCart={productCart}
+                            idProduct={idProduct} addProductCart={addProductCart}
+                            decreaseProductCart={decreaseProductCart}
+                        />
+                    ))}
+                </div>
+                <CartContentFooter />
+            </div>        
         </>
     );
 }
@@ -85,17 +101,17 @@ function CartContentProducts(props) {
             result
         },
         productCart,
-        idProduct, addProductCart
+        idProduct,
+        addProductCart,
+        decreaseProductCart
     } = props;
-
-    //console.log('THOSE ARE THE PRODUCTS:::: ', result);
 
     if (!loading && result) {
         return result.map((product, index) => {
             if (idProduct == product.id) {
                 const quantity = countDuplicateItemArray(product.id, productCart);
                 return (
-                    <RenderProduct key={index} product={product} quantity={quantity} addProductCart={addProductCart} />
+                    <RenderProduct key={index} product={product} quantity={quantity} addProductCart={addProductCart} decreaseProductCart={decreaseProductCart} />
                 )
             }
         })
@@ -106,23 +122,38 @@ function CartContentProducts(props) {
 
 function RenderProduct(props) {
 
-    const { product, quantity, addProductCart } = props;
+    const { product, quantity, addProductCart, decreaseProductCart } = props;
 
     return (
         <div className="cart-content__product">
             <img src={`${BASE_PATH}/${product.image}`} alt={product.name} />
             <div className="cart-content__product-info">
                 <div>
-                    <h3>{product.name.substr(0, 25)}</h3>
+                    <h3>{product.name.substr(0, 25)}...</h3>
                     <p>{product.price.toFixed(2)} $ / Uni.</p>
                 </div>
                 <div>
                     <p>In Cart: {quantity} Uni.</p>
                     <div>
                         <button onClick={() => addProductCart(product.id, product.name)}>+</button>
-                        <button>-</button>
+                        <button onClick={() => decreaseProductCart(product.id)}>-</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    )
+}
+
+function CartContentFooter(props) {
+
+    //const { cartTotalPrice } = props;
+
+    return (            
+        <div className="cart-content__footer">
+            <div>
+                <p>Total: </p>
+                {/* <p>{cartTotalPrice.toFixed(2)} $</p> */}
+                <p>$ 45.34</p>
             </div>
         </div>
     )

@@ -26,7 +26,6 @@ function App() {
 	}
 
 	const addProductCart = (id, name) => {
-		//console.log(`Has añadido el producto ${name} con el id ${id}.`)
 
 		const idProducts = productCart;
 		idProducts.push(id);
